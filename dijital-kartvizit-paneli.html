@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModernBiz - Digital Business Card Generator</title>
+    <!-- QR Kod Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #04192f;
+            --accent-color: #3498db;
+            --bg-color: #f4f4f9;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            grid-column: span 2;
+            font-size: 16px;
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            font-size: 13px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            background: #fff;
+        }
+
+        .profile-upload {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px;
+            border: 1px dashed #cfd8e3;
+            border-radius: 10px;
+            background: #f8fbff;
+        }
+
+        .profile-preview {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e8eef5;
+            border: 2px solid #d8e2ec;
+            flex-shrink: 0;
+        }
+
+        .helper-text {
+            margin-top: 6px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-accent { background-color: var(--accent-color); }
+        .btn-dark { background-color: #333; }
+        .btn-success { background-color: #27ae60; }
+
+        .hidden { display: none !important; }
+
+        .qr-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border: 1px dashed #ccc;
+        }
+
+        #qrcode {
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .download-links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .live-preview {
+            margin-top: 28px;
+            padding: 24px;
+            border-radius: 18px;
+            background:
+                radial-gradient(circle at top right, rgba(52, 152, 219, 0.18), transparent 28%),
+                linear-gradient(145deg, #071a30 0%, #0f2743 58%, #173659 100%);
+            color: #fff;
+            box-shadow: 0 18px 45px rgba(4, 25, 47, 0.18);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .live-preview::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 45%);
+            pointer-events: none;
+        }
+
+        .preview-headline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-headline h3 {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .preview-badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .preview-card {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 18px;
+        }
+
+        .preview-hero {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .preview-avatar {
+            width: 92px;
+            height: 92px;
+            border-radius: 28px;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+        }
+
+        .preview-meta h4 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.05;
+        }
+
+        .preview-title {
+            margin-top: 8px;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 15px;
+        }
+
+        .preview-company {
+            margin-top: 6px;
+            font-size: 13px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #9ad2ff;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .preview-block {
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .preview-block-label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.58);
+            margin-bottom: 8px;
+        }
+
+        .preview-block-value {
+            font-size: 14px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .preview-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preview-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 12px;
+        }
+
+        .preview-empty {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            h3 { grid-column: span 1; }
+            .btn-group { grid-template-columns: 1fr; }
+            .preview-hero { flex-direction: column; align-items: flex-start; }
+            .preview-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>V5 Dijital Kartvizit Paneli / Digital Business Card Panel</h2>
+
+        <div class="grid-container">
+            <h3>Kişisel Bilgiler / Personal Information</h3>
+            <div class="form-group">
+                <label for="firstName">Ad / First Name *</label>
+                <input type="text" id="firstName" placeholder="John" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Soyad / Last Name *</label>
+                <input type="text" id="lastName" placeholder="Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="titleTr">Unvan (TR) / Title (TR) *</label>
+                <input type="text" id="titleTr" placeholder="Yazılım Mühendisi" required>
+            </div>
+            <div class="form-group">
+                <label for="titleEn">Unvan (EN) / Title (EN) *</label>
+                <input type="text" id="titleEn" placeholder="Software Engineer" required>
+            </div>
+            <div class="form-group full-width">
+                <label for="org">Şirket Adı / Company Name</label>
+                <input type="text" id="org" value="ModernBiz Digital Solutions Inc.">
+            </div>
+            <div class="form-group full-width">
+                <label for="profileImage">Profil Resmi / Profile Image</label>
+                <div class="profile-upload">
+                    <img id="profilePreview" class="profile-preview" src="./img/profile.png" alt="Profil Onizleme">
+                    <div style="flex: 1;">
+                        <input type="file" id="profileImage" accept="image/png,image/jpeg,image/webp">
+                        <div class="helper-text">Kaydederken otomatik olarak <code>img/</code> klasörüne kişiye özel adla yazılır. / Automatically saved to <code>img/</code> with personal name.</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>İletişim Kanalları / Contact Channels</h3>
+            <div class="form-group">
+                <label for="cellPhone">Mobil Hat / Mobile Number</label>
+                <input type="tel" id="cellPhone" placeholder="+1 555 123 4567">
+            </div>
+            <div class="form-group">
+                <label for="whatsapp">WhatsApp (Uluslararası / International format, örn/e.g.: 1555...)</label>
+                <input type="tel" id="whatsapp" placeholder="15551234567">
+            </div>
+            <div class="form-group">
+                <label for="workPhone">Sabit Hat / Office Phone</label>
+                <input type="tel" id="workPhone" placeholder="+1 555 987 6543">
+            </div>
+            <div class="form-group">
+                <label for="email">E-posta / Email</label>
+                <input type="email" id="email" placeholder="hello@example.com">
+            </div>
+            <div class="form-group full-width">
+                <label for="website">Web Sitesi / Website</label>
+                <input type="url" id="website" value="https://www.example.com">
+            </div>
+
+            <h3>Sosyal Medya Linkleri / Social Media Links</h3>
+            <div class="form-group">
+                <label for="facebook">Facebook URL</label>
+                <input type="url" id="facebook" placeholder="https://www.facebook.com">
+            </div>
+            <div class="form-group">
+                <label for="instagram">Instagram URL</label>
+                <input type="url" id="instagram" placeholder="https://www.instagram.com">
+            </div>
+            <div class="form-group">
+                <label for="twitter">Twitter URL</label>
+                <input type="url" id="twitter" placeholder="https://twitter.com">
+            </div>
+            <div class="form-group">
+                <label for="youtube">Youtube URL</label>
+                <input type="url" id="youtube" placeholder="https://youtube.com">
+            </div>
+
+            <h3>Firma Bilgileri / Company Information</h3>
+            <div class="form-group full-width">
+                <label for="address">Açık Adres / Full Address</label>
+                <textarea id="address" rows="2">123 Business Avenue, Suite 100, Innovation City, Tech State</textarea>
+            </div>
+            <div class="form-group">
+                <label for="taxOffice">Vergi Dairesi / Tax Office</label>
+                <input type="text" id="taxOffice" value="Tech District">
+            </div>
+            <div class="form-group">
+                <label for="taxNumber">Vergi No / Tax ID</label>
+                <input type="text" id="taxNumber" value="123 456 7890">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-primary" onclick="processAll()">Tüm Dosyaları Hazırla / Prepare All Files</button>
+            <button class="btn-success" onclick="saveAllFiles()">Hazırla ve Kaydet / Prepare and Save</button>
+            <button class="btn-dark" onclick="resetForm()">Temizle / Clear</button>
+        </div>
+
+        <div class="live-preview">
+            <div class="preview-headline">
+                <h3>Canlı Önizleme / Live Preview</h3>
+                <span class="preview-badge">Anlık Güncellenir / Updates Live</span>
+            </div>
+            <div class="preview-card">
+                <div class="preview-hero">
+                    <img id="livePreviewImage" class="preview-avatar" src="./img/profile.png" alt="Canli Onizleme">
+                    <div class="preview-meta">
+                        <h4 id="livePreviewName">Ad Soyad</h4>
+                        <div id="livePreviewTitle" class="preview-title">Unvan / Title</div>
+                        <div id="livePreviewCompany" class="preview-company">SIRKET ADI</div>
+                    </div>
+                </div>
+
+                <div class="preview-grid">
+                    <div class="preview-block">
+                        <span class="preview-block-label">İletişim / Contact</span>
+                        <div id="livePreviewContacts" class="preview-list">
+                            <span class="preview-empty">Bilgi girdikçe burada görünecek. / Will appear as you type.</span>
+                        </div>
+                    </div>
+
+                    <div class="preview-block">
+                        <span class="preview-block-label">Sosyal Medya / Social Media</span>
+                        <div id="livePreviewSocials" class="preview-list">
+                            <span class="preview-empty">Varsayılan linkler kullanılacak. / Default links will be used.</span>
+                        </div>
+                    </div>
+
+                    <div class="preview-block">
+                        <span class="preview-block-label">Adres / Address</span>
+                        <div id="livePreviewAddress" class="preview-block-value">Adres bilgisi buraya yansır. / Address will reflect here.</div>
+                    </div>
+
+                    <div class="preview-block">
+                        <span class="preview-block-label">Fatura / Billing</span>
+                        <div id="livePreviewBilling" class="preview-block-value">Vergi bilgisi burada görünür. / Tax info appears here.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultArea" class="hidden">
+            <div class="qr-container">
+                <canvas id="qrcode"></canvas>
+                <p style="font-size: 14px; font-weight: bold; margin-top:15px; color: var(--primary-color);">Dosyalar Hazır!</p>
+                
+                <div class="download-links">
+                    <button class="btn-success" onclick="saveAllFiles()">Kaydet / Save</button>
+                    <button class="btn-accent" onclick="downloadVCF()">1. VCF İndir / Download</button>
+                    <button class="btn-accent" onclick="downloadHTML()">2. HTML İndir / Download</button>
+                    <button class="btn-accent" onclick="downloadQR()">3. QR (.png) İndir / Download</button>
+                </div>
+                <p id="saveStatus" style="font-size: 13px; margin-top: 12px; color: #555;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PANEL_FILE_NAME = "dijital-kartvizit-paneli.html";
+        const INDEX_FILE_NAME = "index.html";
+        let vcardContent = "";
+        let qrVcardContent = "";
+        let htmlContent = "";
+        let slug = "";
+        let fullName = "";
+        let selectedRootHandle = null;
+        let isWhatsappManuallyEdited = false;
+        let lastAutoWhatsappValue = "";
+        let profileImageFile = null;
+        let profilePreviewUrl = "";
+
+        function getSlug(text) {
+            return transliterateToAscii(text).toLowerCase()
+                .replace(/[^a-z0-9]/g, '')
+                .trim();
+        }
+
+        function transliterateToAscii(text) {
+            return (text || "")
+                .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+                .replace(/ü/g, 'u').replace(/Ü/g, 'U')
+                .replace(/ş/g, 's').replace(/Ş/g, 'S')
+                .replace(/ı/g, 'i').replace(/İ/g, 'I')
+                .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+                .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+                .normalize('NFKD')
+                .replace(/[^\x00-\x7F]/g, '');
+        }
+
+        function escapeHtml(text) {
+            return (text || "")
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function escapeJsSingleQuoted(text) {
+            return (text || "")
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/\r?\n/g, ' ');
+        }
+
+        function stripHtmlTags(text) {
+            return (text || "").replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function decodeHtmlEntities(text) {
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = text || "";
+            return textarea.value;
+        }
+
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) {
+                    resolve("");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Profil resmi okunamadi."));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function getVcardPhotoType(file) {
+            if (!file || !file.type) {
+                return "";
+            }
+
+            const typeMap = {
+                "image/jpeg": "JPEG",
+                "image/jpg": "JPEG",
+                "image/png": "PNG",
+                "image/gif": "GIF",
+                "image/webp": "WEBP"
+            };
+
+            return typeMap[file.type.toLowerCase()] || "";
+        }
+
+        function foldVcardLine(line, maxLength = 74) {
+            if (!line || line.length <= maxLength) {
+                return line;
+            }
+
+            const parts = [];
+
+            for (let index = 0; index < line.length; index += maxLength) {
+                const chunk = line.slice(index, index + maxLength);
+                parts.push(index === 0 ? chunk : ` ${chunk}`);
+            }
+
+            return parts.join('\r\n');
+        }
+
+        function joinVcardLines(lines) {
+            return `${lines.join('\r\n')}\r\n`;
+        }
+
+        function sanitizePhoneForWhatsapp(phone) {
+            const digits = (phone || "").replace(/\D/g, '');
+            if (!digits) return "";
+            if (digits.startsWith('90')) return digits;
+            if (digits.startsWith('0')) return `90${digits.slice(1)}`;
+            return digits;
+        }
+
+        function getOptionalInputValue(id) {
+            const input = document.getElementById(id);
+            const value = input.value.trim();
+
+            if (value === "0" || value === "-") {
+                return "";
+            }
+
+            return value || input.placeholder.trim();
+        }
+
+        function getProfileImageExtension(file) {
+            if (!file) {
+                return ".png";
+            }
+
+            const fileName = file.name || "";
+            const extensionMatch = fileName.match(/\.[a-zA-Z0-9]+$/);
+
+            if (extensionMatch) {
+                return extensionMatch[0].toLowerCase();
+            }
+
+            if (file.type === "image/jpeg") return ".jpg";
+            if (file.type === "image/webp") return ".webp";
+
+            return ".png";
+        }
+
+        function getProfileImageFileName(baseSlug = slug) {
+            if (!profileImageFile) {
+                return "profile.png";
+            }
+
+            const safeBaseSlug = getSlug(baseSlug || "profil");
+            return `${safeBaseSlug}-profile${getProfileImageExtension(profileImageFile)}`;
+        }
+
+        function getProfileImageRelativePath(baseSlug = slug) {
+            return `./img/${getProfileImageFileName(baseSlug)}`;
+        }
+
+        function getGeneratedOutputs() {
+            return {
+                htmlOutput: htmlContent,
+                vcardOutput: vcardContent,
+                qrOutput: qrVcardContent
+            };
+        }
+
+        function createIndexPageHtml(cards) {
+            const cardCount = cards.length;
+            const cardMarkup = cards.map((card) => `
+                <a class="directory-card" href="./${card.fileName}">
+                    <div class="directory-card__top">
+                        <span class="directory-card__tag">Dijital Kartvizit</span>
+                        <span class="directory-card__arrow">Incele</span>
+                    </div>
+                    <h2>${escapeHtml(card.name)}</h2>
+                    <p>${escapeHtml(card.company || "ModernBiz Digital")}</p>
+                    <span class="directory-card__meta">${escapeHtml(card.fileName)}</span>
+                </a>
+            `).join('');
+
+            return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModernBiz - Digital Business Cards</title>
+    <style>
+        :root {
+            --bg: #f2eee6;
+            --surface: rgba(255, 255, 255, 0.78);
+            --line: rgba(7, 25, 48, 0.12);
+            --ink: #0e1e31;
+            --muted: #667287;
+            --accent: #cc5c2f;
+            --accent-soft: #f2d3c2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Georgia, "Times New Roman", serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(204, 92, 47, 0.14), transparent 24%),
+                radial-gradient(circle at bottom right, rgba(14, 30, 49, 0.09), transparent 28%),
+                linear-gradient(135deg, #f6f1e9 0%, #efe7da 100%);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(14, 30, 49, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 30, 49, 0.03) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent 70%);
+        }
+
+        .shell {
+            width: min(1180px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 44px 0 72px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.35fr 0.9fr;
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .hero-panel,
+        .summary-panel {
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 24px 60px rgba(14, 30, 49, 0.08);
+        }
+
+        .hero-panel {
+            padding: 34px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #fff;
+            color: var(--accent);
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 18px 0 14px;
+            font-size: clamp(38px, 7vw, 74px);
+            line-height: 0.92;
+            letter-spacing: -0.04em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 56ch;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.65;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .hero-actions a {
+            text-decoration: none;
+            border-radius: 999px;
+            padding: 14px 20px;
+            font-size: 14px;
+            letter-spacing: 0.04em;
+        }
+
+        .hero-actions .primary {
+            background: var(--ink);
+            color: #fff;
+        }
+
+        .hero-actions .secondary {
+            border: 1px solid var(--line);
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .summary-panel {
+            padding: 28px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .summary-kicker {
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .summary-number {
+            font-size: clamp(48px, 8vw, 88px);
+            line-height: 0.95;
+            color: var(--accent);
+        }
+
+        .summary-copy {
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: end;
+            margin: 34px 0 18px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: -0.03em;
+        }
+
+        .section-head span {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        .directory-card {
+            text-decoration: none;
+            color: inherit;
+            min-height: 220px;
+            border-radius: 24px;
+            padding: 22px;
+            border: 1px solid var(--line);
+            background:
+                linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 248, 242, 0.84)),
+                linear-gradient(145deg, rgba(204, 92, 47, 0.08), transparent);
+            box-shadow: 0 18px 36px rgba(14, 30, 49, 0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+        }
+
+        .directory-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 48px rgba(14, 30, 49, 0.1);
+            border-color: rgba(204, 92, 47, 0.35);
+        }
+
+        .directory-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .directory-card__tag {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .directory-card h2 {
+            margin: 18px 0 8px;
+            font-size: 28px;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .directory-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .directory-card__meta {
+            display: inline-flex;
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .empty-state {
+            padding: 28px;
+            border-radius: 24px;
+            border: 1px dashed var(--line);
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .shell {
+                width: min(100% - 28px, 1180px);
+                padding-top: 24px;
+            }
+
+            .hero-panel,
+            .summary-panel,
+            .directory-card {
+                border-radius: 22px;
+            }
+
+            .hero-panel,
+            .summary-panel {
+                padding: 22px;
+            }
+
+            .section-head {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <section class="hero">
+            <article class="hero-panel">
+                <span class="eyebrow">OMSA LINE Kartvizit Merkezi</span>
+                <h1>Dijital kartvizitlerin hepsi tek bir rotada.</h1>
+                <p>Bu sayfa, projede uretilmis tum kartvizitleri tek merkezde toplar. Panelden yeni bir kayit eklendiginde liste otomatik guncellenir ve en guncel sayfalar burada yayina hazir olur.</p>
+                <div class="hero-actions">
+                    <a class="primary" href="./${PANEL_FILE_NAME}">Yonetim Panelini Ac</a>
+                    <a class="secondary" href="#kartvizitler">Kartvizitlere Git</a>
+                </div>
+            </article>
+            <aside class="summary-panel">
+                <span class="summary-kicker">Aktif Kayit Sayisi</span>
+                <div class="summary-number">${cardCount}</div>
+                <div class="summary-copy">Her kayit kendi HTML, VCF ve QR dosyasi ile yayinlanir. Bu ekran kartvizitlere hizli erisim icin otomatik olusan dizindir.</div>
+            </aside>
+        </section>
+
+        <section id="kartvizitler">
+            <div class="section-head">
+                <h2>Kartvizit Navigasyonu</h2>
+                <span>${cardCount} kartvizit listeleniyor</span>
+            </div>
+            <div class="directory-grid">
+                ${cardMarkup || '<div class="empty-state">Henuz kaydedilmis bir kartvizit bulunmuyor. Yeni kayit icin yonetim panelini kullanin.</div>'}
+            </div>
+        </section>
+    </main>
+</body>
+</html>`;
+        }
+
+        async function readFileText(fileHandle) {
+            const file = await fileHandle.getFile();
+            return await file.text();
+        }
+
+        function parseCardMeta(fileName, fileContent) {
+            const h1Match = fileContent.match(/<h1[^>]*class="profile-card__name"[^>]*>([\s\S]*?)<\/h1>/i);
+            const titleMatch = fileContent.match(/<title>([\s\S]*?)<\/title>/i);
+            const companyMatch = fileContent.match(/<div[^>]*class="profile-card-loc"[^>]*>([\s\S]*?)<\/div>/i);
+            const rawName = h1Match ? h1Match[1] : (titleMatch ? titleMatch[1].replace(/\s*-\s*OMSA LINE\s*$/i, '') : fileName.replace(/\.html$/i, ''));
+            const rawCompany = companyMatch ? companyMatch[1] : "OMSA LINE";
+
+            return {
+                fileName,
+                name: decodeHtmlEntities(stripHtmlTags(rawName)),
+                company: decodeHtmlEntities(stripHtmlTags(rawCompany))
+            };
+        }
+
+        async function collectCardPages(rootHandle) {
+            const cards = [];
+
+            for await (const entry of rootHandle.values()) {
+                if (entry.kind !== 'file' || !entry.name.toLowerCase().endsWith('.html')) {
+                    continue;
+                }
+
+                if (entry.name === INDEX_FILE_NAME || entry.name === PANEL_FILE_NAME) {
+                    continue;
+                }
+
+                const fileContent = await readFileText(entry);
+                cards.push(parseCardMeta(entry.name, fileContent));
+            }
+
+            return cards.sort((a, b) => a.name.localeCompare(b.name, 'tr-TR'));
+        }
+
+        async function updateDirectoryIndex(rootHandle) {
+            const cards = await collectCardPages(rootHandle);
+            const indexHandle = await rootHandle.getFileHandle(INDEX_FILE_NAME, { create: true });
+            await writeFile(indexHandle, createIndexPageHtml(cards));
+            return cards.length;
+        }
+
+        function handleProfileImageChange(event) {
+            const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+            const preview = document.getElementById('profilePreview');
+
+            if (profilePreviewUrl) {
+                URL.revokeObjectURL(profilePreviewUrl);
+                profilePreviewUrl = "";
+            }
+
+            if (!file) {
+                profileImageFile = null;
+                preview.src = "./img/profile.png";
+                return;
+            }
+
+            profileImageFile = file;
+            profilePreviewUrl = URL.createObjectURL(file);
+            preview.src = profilePreviewUrl;
+            refreshLivePreview();
+        }
+
+        function createPreviewPill(label, value) {
+            return `<span class="preview-pill"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</span>`;
+        }
+
+        function refreshLivePreview() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const titleTr = document.getElementById('titleTr').value.trim();
+            const titleEn = document.getElementById('titleEn').value.trim();
+            const company = document.getElementById('org').value.trim();
+            const cell = document.getElementById('cellPhone').value.trim();
+            const whatsapp = sanitizePhoneForWhatsapp(document.getElementById('whatsapp').value.trim());
+            const work = document.getElementById('workPhone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const web = document.getElementById('website').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const taxOffice = document.getElementById('taxOffice').value.trim();
+            const taxNumber = document.getElementById('taxNumber').value.trim();
+            const facebook = getOptionalInputValue('facebook');
+            const instagram = getOptionalInputValue('instagram');
+            const twitter = getOptionalInputValue('twitter');
+            const youtube = getOptionalInputValue('youtube');
+
+            const fullNamePreview = `${firstName} ${lastName}`.trim() || "Ad Soyad";
+            const titlePreview = [titleTr, titleEn].filter(Boolean).join(" / ") || "Unvan / Title";
+            const companyPreview = (company || "Şirket Adı").toLocaleUpperCase('tr-TR');
+            const livePreviewImage = document.getElementById('livePreviewImage');
+            const contacts = [];
+            const socials = [];
+
+            if (cell) contacts.push(createPreviewPill("Mobil", cell));
+            if (whatsapp) contacts.push(createPreviewPill("Whatsapp", `+${whatsapp}`));
+            if (work) contacts.push(createPreviewPill("Sabit", work));
+            if (email) contacts.push(createPreviewPill("E-posta", email));
+            if (web) contacts.push(createPreviewPill("Web", web.replace(/^https?:\/\//, '')));
+
+            if (facebook) socials.push(createPreviewPill("Facebook", facebook.replace(/^https?:\/\//, '')));
+            if (instagram) socials.push(createPreviewPill("Instagram", instagram.replace(/^https?:\/\//, '')));
+            if (twitter) socials.push(createPreviewPill("Twitter", twitter.replace(/^https?:\/\//, '')));
+            if (youtube) socials.push(createPreviewPill("Youtube", youtube.replace(/^https?:\/\//, '')));
+
+            document.getElementById('livePreviewName').textContent = fullNamePreview;
+            document.getElementById('livePreviewTitle').textContent = titlePreview;
+            document.getElementById('livePreviewCompany').textContent = companyPreview;
+            document.getElementById('livePreviewAddress').textContent = address || "Adres bilgisi buraya yansir.";
+            document.getElementById('livePreviewBilling').textContent = [taxOffice, taxNumber].filter(Boolean).join(" / ") || "Vergi bilgisi burada gorunur.";
+            document.getElementById('livePreviewContacts').innerHTML = contacts.length
+                ? contacts.join('')
+                : '<span class="preview-empty">Bilgi girdikce burada gorunecek.</span>';
+            document.getElementById('livePreviewSocials').innerHTML = socials.length
+                ? socials.join('')
+                : '<span class="preview-empty">Varsayilan linkler kullanilacak.</span>';
+
+            livePreviewImage.src = profilePreviewUrl || "./img/profile.png";
+        }
+
+        function syncWhatsappFromCell() {
+            const cellInput = document.getElementById('cellPhone');
+            const whatsappInput = document.getElementById('whatsapp');
+            const autoWhatsapp = sanitizePhoneForWhatsapp(cellInput.value);
+            const currentWhatsapp = whatsappInput.value.trim();
+            const canAutoFill = !isWhatsappManuallyEdited || !currentWhatsapp || currentWhatsapp === lastAutoWhatsappValue;
+
+            if (canAutoFill) {
+                whatsappInput.value = autoWhatsapp;
+                isWhatsappManuallyEdited = false;
+            }
+
+            lastAutoWhatsappValue = autoWhatsapp;
+        }
+
+        function handleWhatsappManualEdit() {
+            const whatsappInput = document.getElementById('whatsapp');
+            const autoWhatsapp = sanitizePhoneForWhatsapp(document.getElementById('cellPhone').value);
+            const currentWhatsapp = whatsappInput.value.trim();
+
+            if (!currentWhatsapp || currentWhatsapp === autoWhatsapp) {
+                isWhatsappManuallyEdited = false;
+                lastAutoWhatsappValue = autoWhatsapp;
+                return;
+            }
+
+            isWhatsappManuallyEdited = true;
+        }
+
+        function updateSaveStatus(message, isError = false) {
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.textContent = message;
+            saveStatus.style.color = isError ? '#c0392b' : '#555';
+        }
+
+        function initializeFormHelpers() {
+            const cellPhoneInput = document.getElementById('cellPhone');
+            const whatsappInput = document.getElementById('whatsapp');
+            const profileImageInput = document.getElementById('profileImage');
+            const liveFields = document.querySelectorAll('input:not([type="file"]), textarea');
+
+            cellPhoneInput.addEventListener('input', syncWhatsappFromCell);
+            whatsappInput.addEventListener('input', handleWhatsappManualEdit);
+            profileImageInput.addEventListener('change', handleProfileImageChange);
+            liveFields.forEach((field) => field.addEventListener('input', refreshLivePreview));
+            refreshLivePreview();
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeFormHelpers);
+
+        async function processAll() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            
+            if (!firstName || !lastName) {
+                alert("Lütfen en az Ad ve Soyad alanlarını doldurun.");
+                return;
+            }
+
+            fullName = firstName + " " + lastName;
+            slug = getSlug(firstName + lastName);
+            syncWhatsappFromCell();
+            
+            await generateVCF();
+            generateHTML();
+            generateQR();
+            
+            document.getElementById('resultArea').classList.remove('hidden');
+            updateSaveStatus("Kaydet ile HTML, VCF ve QR dosyalarini klasorlerine yazabilirsiniz.");
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        async function generateVCF() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const org = document.getElementById('org').value;
+            const title = document.getElementById('titleTr').value;
+            const cell = document.getElementById('cellPhone').value;
+            const work = document.getElementById('workPhone').value;
+            const email = document.getElementById('email').value;
+            const web = document.getElementById('website').value;
+            const addr = document.getElementById('address').value;
+            let photoLine = "";
+
+            if (profileImageFile) {
+                const dataUrl = await readFileAsDataUrl(profileImageFile);
+                const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : "";
+                const photoType = getVcardPhotoType(profileImageFile);
+
+                if (base64Data && photoType) {
+                    photoLine = foldVcardLine(`PHOTO;TYPE=${photoType};ENCODING=b:${base64Data}`);
+                }
+            }
+
+            const baseLines = [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                `N;CHARSET=utf-8:${lastName};${firstName};;;`,
+                `FN;CHARSET=utf-8:${firstName} ${lastName}`,
+                `ORG;CHARSET=utf-8:${org}`,
+                `TITLE;CHARSET=utf-8:${title}`,
+                `TEL;CELL:${cell}`,
+                `TEL;WORK:${work}`,
+                `EMAIL;INTERNET;WORK:${email}`,
+                `URL;WORK:${web}`,
+                `ADR;WORK;CHARSET=utf-8:;;${addr};;;;`
+            ];
+
+            qrVcardContent = joinVcardLines([
+                ...baseLines,
+                "END:VCARD"
+            ]);
+
+            vcardContent = joinVcardLines([
+                ...baseLines,
+                ...(photoLine ? [photoLine] : []),
+                "END:VCARD"
+            ]);
+        }
+
+        function generateQR() {
+            const canvas = document.getElementById('qrcode');
+            QRCode.toCanvas(canvas, qrVcardContent || vcardContent, { width: 200, margin: 2 });
+        }
+
+        function generateHTML() {
+            const fullNameDisplay = fullName;
+            const titleTr = document.getElementById('titleTr').value;
+            const titleEn = document.getElementById('titleEn').value;
+            const company = document.getElementById('org').value;
+            const cell = document.getElementById('cellPhone').value;
+            const whatsapp = sanitizePhoneForWhatsapp(document.getElementById('whatsapp').value);
+            const work = document.getElementById('workPhone').value;
+            const email = document.getElementById('email').value;
+            const web = document.getElementById('website').value;
+            const fb = getOptionalInputValue('facebook');
+            const ig = getOptionalInputValue('instagram');
+            const tw = getOptionalInputValue('twitter');
+            const yt = getOptionalInputValue('youtube');
+            const addr = document.getElementById('address').value;
+            const taxO = document.getElementById('taxOffice').value;
+            const taxN = document.getElementById('taxNumber').value;
+            const escapedFullName = escapeHtml(fullNameDisplay);
+            const escapedTitleTr = escapeHtml(titleTr);
+            const escapedTitleEn = escapeHtml(titleEn);
+            const escapedCompany = escapeHtml(company);
+            const escapedAddr = escapeHtml(addr);
+            const escapedAddrJs = escapeJsSingleQuoted(addr);
+            const escapedTaxO = escapeHtml(taxO);
+            const escapedTaxN = escapeHtml(taxN);
+            const escapedTaxNJs = escapeJsSingleQuoted(taxN.replace(/\s+/g, ''));
+            const escapedCell = escapeHtml(cell);
+            const escapedWork = escapeHtml(work);
+            const escapedEmail = escapeHtml(email);
+            const escapedWeb = escapeHtml(web);
+            const profileImageSrc = getProfileImageRelativePath(slug);
+
+            let contactItems = "";
+            if(cell) contactItems += `
+                <a href="tel:${cell.replace(/\s+/g, '')}" class="contact-item">
+                    <div class="contact-info">
+                        <span class="contact-label"><span class="tr">Mobil</span><span class="en">Mobile</span></span>
+                        <span class="contact-value">${escapedCell}</span>
+                    </div>
+                    <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+                </a>`;
+            if(whatsapp) contactItems += `
+                <a href="https://wa.me/${whatsapp}" class="contact-item">
+                    <div class="contact-info">
+                        <span class="contact-label">Whatsapp</span>
+                        <span class="contact-value">+${escapeHtml(whatsapp)}</span>
+                    </div>
+                    <div class="contact-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                </a>`;
+            if(email) contactItems += `
+                <a href="mailto:${email}" class="contact-item">
+                    <div class="contact-info">
+                        <span class="contact-label"><span class="tr">E-Posta</span><span class="en">Email</span></span>
+                        <span class="contact-value">${escapedEmail}</span>
+                    </div>
+                    <div class="contact-icon"><i class="fa-regular fa-envelope"></i></div>
+                </a>`;
+            if(work) contactItems += `
+                <a href="tel:${work.replace(/\s+/g, '')}" class="contact-item">
+                    <div class="contact-info">
+                        <span class="contact-label"><span class="tr">Sabit</span><span class="en">Phone</span></span>
+                        <span class="contact-value">
+                            <span class="tr">${escapedWork}</span>
+                            <span class="en">+90224 ${escapedWork}</span>
+                        </span>
+                    </div>
+                    <div class="contact-icon"><i class="fa-solid fa-phone-flip"></i></div>
+                </a>`;
+            contactItems += `
+                <a href="https://www.google.com/maps/dir//Omsa+Otomotiv+Aksesuarlar%C4%B1+A.%C5%9E./" target="_blank" class="contact-item">
+                    <div class="contact-info">
+                        <span class="contact-label"><span class="tr">Konum</span><span class="en">Location</span></span>
+                        <span class="contact-value"><span class="tr">Yol Tarifi Al</span><span class="en">Get Directions</span></span>
+                    </div>
+                    <div class="contact-icon"><i class="fa-solid fa-location-arrow"></i></div>
+                </a>`;
+            if(web) contactItems += `
+                <a href="${web}" target="_blank" class="contact-item">
+                    <div class="contact-info">
+                        <span class="contact-label">Web</span>
+                        <span class="contact-value">${escapedWeb.replace('https://', '')}</span>
+                    </div>
+                    <div class="contact-icon"><i class="fa-solid fa-globe"></i></div>
+                </a>`;
+
+            let infoItems = `
+                <div class="info-box" onclick="toggleInfo(this)">
+                    <div class="info-box__header">
+                        <div class="info-box__title"><span class="tr">Adres Bilgileri</span><span class="en">Address Info</span></div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="info-box__content">
+                        <div class="detail-row">
+                            <p>${escapedAddr}</p>
+                            <button class="copy-btn" onclick="copyText('${escapedAddrJs}', event)"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box" onclick="toggleInfo(this)">
+                    <div class="info-box__header">
+                        <div class="info-box__title"><span class="tr">Fatura Bilgileri</span><span class="en">Billing Info</span></div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="info-box__content">
+                        <div class="detail-row">
+                            <div class="detail-label"><span class="tr">Ticari Unvan</span><span class="en">Company Name</span></div>
+                            <div>${escapedCompany}</div>
+                            <button class="copy-btn" onclick="copyText('${escapeJsSingleQuoted(company)}', event)"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label"><span class="tr">Vergi Dairesi / No</span><span class="en">Tax Office / No</span></div>
+                            <div>${escapedTaxO} / ${escapedTaxN}</div>
+                            <button class="copy-btn" onclick="copyText('${escapedTaxNJs}', event)"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+
+            let socialItems = "";
+            if(fb) socialItems += `<a href="${escapeHtml(fb)}" target="_blank" class="social-item"><i class="fa-brands fa-facebook"></i></a>`;
+            if(ig) socialItems += `<a href="${escapeHtml(ig)}" target="_blank" class="social-item"><i class="fa-brands fa-instagram"></i></a>`;
+            if(tw) socialItems += `<a href="${escapeHtml(tw)}" target="_blank" class="social-item"><i class="fa-brands fa-twitter"></i></a>`;
+            if(yt) socialItems += `<a href="${escapeHtml(yt)}" target="_blank" class="social-item"><i class="fa-brands fa-youtube"></i></a>`;
+
+            htmlContent = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>${escapedFullName} - OMSA LINE</title>
+    <link rel="stylesheet" href="./css/normalize.min.css">
+    <link rel="stylesheet" href="./css/style_v5.css">
+    <link href="./fontawesome/css/fontawesome.css" rel="stylesheet">
+    <link href="./fontawesome/css/brands.css" rel="stylesheet">
+    <link href="./fontawesome/css/solid.css" rel="stylesheet">
+</head>
+<body class="lang-tr">
+<div class="wrapper">
+    <div class="top-section">
+        <img src="./img/Omsaline-blue_50.png" alt="Omsaline Logo" class="top-logo">
+        <img src="./img/${slug}.png" alt="QR Code" class="qr-image">
+    </div>
+    <main class="profile-content">
+        <div class="header-actions">
+            <div class="lang-switch">
+                <i class="fa-solid fa-globe"></i>
+                <button onclick="setLanguage('tr')" class="lang-btn active" id="btn-tr">TR</button>
+                <span class="lang-sep">|</span>
+                <button onclick="setLanguage('en')" class="lang-btn" id="btn-en">EN</button>
+            </div>
+            <div class="qr-btn" onclick="toggleQR()"><i class="fa-solid fa-qrcode"></i></div>
+        </div>
+        <div class="profile-card__img">
+            <img src="${profileImageSrc}" alt="${escapedFullName}">
+        </div>
+        <div class="profile-details">
+            <h1 class="profile-card__name">${escapedFullName}</h1>
+            <p class="profile-card__txt">
+                <span class="tr">${escapedTitleTr}</span>
+                <span class="en">${escapedTitleEn}</span>
+            </p>
+            <div class="profile-card-loc">${escapedCompany}</div>
+        </div>
+        <h2 class="section-title"><span class="tr">Iletisim</span><span class="en">Contact</span></h2>
+        <div class="contact-list">
+            ${contactItems}
+        </div>
+        <h2 class="section-title"><span class="tr">Bilgiler</span><span class="en">Information</span></h2>
+        <div class="info-sections">
+            ${infoItems}
+        </div>
+        <div class="profile-card-social">
+            ${socialItems}
+        </div>
+        <div class="save-btn-container">
+            <a href="./vcf/${slug}.vcf" download="${slug}.vcf" class="save-btn">
+                <span class="tr">Rehbere Kaydet</span><span class="en">Save to Contacts</span>
+            </a>
+        </div>
+    </main>
+</div>
+<script src="./js/script.js"><\/script>
+</body>
+</html>`;
+        }
+
+        function downloadVCF() {
+            const { vcardOutput } = getGeneratedOutputs();
+            const blob = new Blob([vcardOutput], { type: 'text/vcard;charset=utf-8' });
+            saveFile(blob, slug + ".vcf");
+        }
+
+        function downloadHTML() {
+            const { htmlOutput } = getGeneratedOutputs();
+            const blob = new Blob([htmlOutput], { type: 'text/html;charset=utf-8' });
+            saveFile(blob, slug + ".html");
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrcode');
+            const dataUrl = canvas.toDataURL("image/png");
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = slug + ".png";
+            a.click();
+        }
+
+        function saveFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function canvasToBlob(canvas) {
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve(blob);
+                        return;
+                    }
+
+                    reject(new Error("QR gorseli olusturulamadi."));
+                }, 'image/png');
+            });
+        }
+
+        async function writeFile(fileHandle, content) {
+            const writable = await fileHandle.createWritable();
+            await writable.write(content);
+            await writable.close();
+        }
+
+        async function saveAllFiles() {
+            await processAll();
+
+            if (!slug || !vcardContent || !htmlContent) {
+                return;
+            }
+
+            try {
+                const { htmlOutput, vcardOutput } = getGeneratedOutputs();
+
+                if (!window.showDirectoryPicker) {
+                    downloadVCF();
+                    downloadHTML();
+                    downloadQR();
+                    if (profileImageFile) {
+                        saveFile(profileImageFile, getProfileImageFileName(slug));
+                    }
+                    updateSaveStatus("Tarayici klasore otomatik kaydi desteklemiyor. Dosyalar indirme olarak verildi.", true);
+                    return;
+                }
+
+                if (!selectedRootHandle) {
+                    updateSaveStatus("Ilk kayit icin proje kok klasorunu secin.");
+                    selectedRootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                }
+
+                const safeSlug = getSlug(slug);
+                const rootHtmlHandle = await selectedRootHandle.getFileHandle(`${safeSlug}.html`, { create: true });
+                const vcfDirectoryHandle = await selectedRootHandle.getDirectoryHandle('vcf', { create: true });
+                const vcfFileHandle = await vcfDirectoryHandle.getFileHandle(`${safeSlug}.vcf`, { create: true });
+                const imgDirectoryHandle = await selectedRootHandle.getDirectoryHandle('img', { create: true });
+                const imageFileHandle = await imgDirectoryHandle.getFileHandle(`${safeSlug}.png`, { create: true });
+                const qrBlob = await canvasToBlob(document.getElementById('qrcode'));
+
+                await writeFile(rootHtmlHandle, htmlOutput);
+                await writeFile(vcfFileHandle, vcardOutput);
+                await writeFile(imageFileHandle, qrBlob);
+
+                let saveMessage = `Dosyalar kaydedildi: ${safeSlug}.html, vcf/${safeSlug}.vcf, img/${safeSlug}.png`;
+
+                if (profileImageFile) {
+                    const profileImageHandle = await imgDirectoryHandle.getFileHandle(getProfileImageFileName(safeSlug), { create: true });
+                    await writeFile(profileImageHandle, profileImageFile);
+                    saveMessage += `, img/${getProfileImageFileName(safeSlug)}`;
+                }
+
+                const cardCount = await updateDirectoryIndex(selectedRootHandle);
+                saveMessage += `, ${INDEX_FILE_NAME} guncellendi (${cardCount} kartvizit)`;
+
+                updateSaveStatus(saveMessage);
+            } catch (error) {
+                console.error(error);
+                updateSaveStatus("Kaydetme sirasinda bir hata olustu. Tarayici izinlerini kontrol edin veya manuel indirme kullanin.", true);
+            }
+        }
+
+        function resetForm() {
+            if(confirm("Tüm formu temizlemek istediğinize emin misiniz?")) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

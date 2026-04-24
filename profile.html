@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>John Doe - ModernBiz Digital</title>
+
+    <!-- Meta Tags -->
+    <meta name="description" content="John Doe - Software Engineer at ModernBiz Digital" />
+    <meta property="og:title" content="John Doe - ModernBiz Digital" />
+    <meta property="og:image" content="./img/profile.png" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/normalize.min.css" />
+    <link rel="stylesheet" href="./css/style_v5.css" />
+
+    <!-- Font Awesome -->
+    <link href="./fontawesome/css/fontawesome.css" rel="stylesheet" />
+    <link href="./fontawesome/css/brands.css" rel="stylesheet" />
+    <link href="./fontawesome/css/solid.css" rel="stylesheet" />
+  </head>
+
+  <body class="lang-en">
+    <div class="wrapper">
+      <!-- Top White Section -->
+      <div class="top-section">
+        <img src="./img/logo.png" alt="Logo" class="top-logo" />
+        <img src="./img/qr.png" alt="QR Code" class="qr-image" />
+      </div>
+
+      <!-- Main Content -->
+      <main class="profile-content">
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <div class="lang-switch">
+            <i class="fa-solid fa-globe"></i>
+            <button onclick="setLanguage('tr')" class="lang-btn" id="btn-tr">TR</button>
+            <span class="lang-sep">|</span>
+            <button onclick="setLanguage('en')" class="lang-btn active" id="btn-en">EN</button>
+          </div>
+          <div class="qr-btn" onclick="toggleQR()"><i class="fa-solid fa-qrcode"></i></div>
+        </div>
+
+        <!-- Avatar -->
+        <div class="profile-card__img">
+          <img src="./img/profile.png" alt="John Doe" />
+        </div>
+
+        <div class="profile-details">
+          <h1 class="profile-card__name">John Doe</h1>
+          <p class="profile-card__txt">Software Engineer</p>
+          <div class="profile-card-loc">ModernBiz Digital Solutions Inc.</div>
+        </div>
+
+        <!-- Contacts Section -->
+        <h2 class="section-title">
+          <span class="tr">İletişim</span>
+          <span class="en">Contact</span>
+        </h2>
+        <div class="contact-list">
+          <a href="tel:+15551234567" class="contact-item">
+            <div class="contact-info">
+              <span class="contact-label">
+                <span class="tr">Mobil</span>
+                <span class="en">Mobile</span>
+              </span>
+              <span class="contact-value">+1 555 123 4567</span>
+            </div>
+            <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+          </a>
+
+          <a href="https://wa.me/15551234567" class="contact-item">
+            <div class="contact-info">
+              <span class="contact-label">Whatsapp</span>
+              <span class="contact-value">+1 555 123 4567</span>
+            </div>
+            <div class="contact-icon"><i class="fa-brands fa-whatsapp"></i></div>
+          </a>
+
+          <a href="mailto:hello@example.com" class="contact-item">
+            <div class="contact-info">
+              <span class="contact-label">
+                <span class="tr">E-Posta</span>
+                <span class="en">Email</span>
+              </span>
+              <span class="contact-value">hello@example.com</span>
+            </div>
+            <div class="contact-icon"><i class="fa-regular fa-envelope"></i></div>
+          </a>
+
+          <a href="tel:+15559876543" class="contact-item">
+            <div class="contact-info">
+              <span class="contact-label">
+                <span class="tr">Sabit</span>
+                <span class="en">Phone</span>
+              </span>
+              <span class="contact-value">
+                <span class="tr">+1 555 987 6543</span>
+                <span class="en">+1 555 987 6543</span>
+              </span>
+            </div>
+            <div class="contact-icon"><i class="fa-solid fa-phone-flip"></i></div>
+          </a>
+
+          <a
+            href="https://www.google.com/maps"
+            target="_blank"
+            class="contact-item"
+          >
+            <div class="contact-info">
+              <span class="contact-label">
+                <span class="tr">Konum</span>
+                <span class="en">Location</span>
+              </span>
+              <span class="contact-value">
+                <span class="tr">Yol Tarifi Al</span>
+                <span class="en">Get Directions</span>
+              </span>
+            </div>
+            <div class="contact-icon"><i class="fa-solid fa-location-arrow"></i></div>
+          </a>
+
+          <a href="https://www.example.com" target="_blank" class="contact-item">
+            <div class="contact-info">
+              <span class="contact-label">Web</span>
+              <span class="contact-value">www.example.com</span>
+            </div>
+            <div class="contact-icon"><i class="fa-solid fa-globe"></i></div>
+          </a>
+        </div>
+
+        <!-- Info Sections (Accordion) -->
+        <h2 class="section-title">
+          <span class="tr">Bilgiler</span>
+          <span class="en">Information</span>
+        </h2>
+        <div class="info-sections">
+          <!-- Address -->
+          <div class="info-box" onclick="toggleInfo(this)">
+            <div class="info-box__header">
+              <div class="info-box__title">
+                <span class="tr">Adres Bilgileri</span>
+                <span class="en">Address Info</span>
+              </div>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="info-box__content">
+              <div class="detail-row">
+                <p>123 Business Avenue, Suite 100, Innovation City, Tech State</p>
+                <button class="copy-btn" onclick="copyText('123 Business Avenue, Suite 100, Innovation City, Tech State', event)">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing -->
+          <div class="info-box" onclick="toggleInfo(this)">
+            <div class="info-box__header">
+              <div class="info-box__title">
+                <span class="tr">Fatura Bilgileri</span>
+                <span class="en">Billing Info</span>
+              </div>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="info-box__content">
+              <div class="detail-row">
+                <div class="detail-label">
+                  <span class="tr">Ticari Ünvan</span>
+                  <span class="en">Company Name</span>
+                </div>
+                <div>ModernBiz Digital Solutions Inc.</div>
+                <button class="copy-btn" onclick="copyText('ModernBiz Digital Solutions Inc.', event)">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">
+                  <span class="tr">Vergi Dairesi / No</span>
+                  <span class="en">Tax Office / No</span>
+                </div>
+                <div>Tech District / 123 456 7890</div>
+                <button class="copy-btn" onclick="copyText('1234567890', event)"><i class="fa-regular fa-copy"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="profile-card-social">
+          <a href="https://www.facebook.com" target="_blank" class="social-item"><i class="fa-brands fa-facebook"></i></a>
+          <a href="https://www.instagram.com" target="_blank" class="social-item"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://twitter.com" target="_blank" class="social-item"><i class="fa-brands fa-twitter"></i></a>
+          <a href="https://youtube.com" target="_blank" class="social-item"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+
+        <!-- CTA -->
+        <div class="save-btn-container">
+          <a href="./vcf/profile.vcf" download="profile.vcf" class="save-btn">
+            <span class="tr">Rehbere Kaydet</span>
+            <span class="en">Save to Contacts</span>
+          </a>
+        </div>
+      </main>
+    </div>
+
+    <!-- JS -->
+    <script src="./js/script.js"></script>
+  </body>
+</html>
