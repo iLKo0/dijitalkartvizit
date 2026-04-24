@@ -943,7 +943,7 @@
     <main class="shell">
         <section class="hero">
             <article class="hero-panel">
-                <span class="eyebrow">OMSA LINE Kartvizit Merkezi</span>
+                <span class="eyebrow">ModernBiz Digital Hub</span>
                 <h1>Dijital kartvizitlerin hepsi tek bir rotada.</h1>
                 <p>Bu sayfa, projede uretilmis tum kartvizitleri tek merkezde toplar. Panelden yeni bir kayit eklendiginde liste otomatik guncellenir ve en guncel sayfalar burada yayina hazir olur.</p>
                 <div class="hero-actions">
@@ -981,8 +981,8 @@
             const h1Match = fileContent.match(/<h1[^>]*class="profile-card__name"[^>]*>([\s\S]*?)<\/h1>/i);
             const titleMatch = fileContent.match(/<title>([\s\S]*?)<\/title>/i);
             const companyMatch = fileContent.match(/<div[^>]*class="profile-card-loc"[^>]*>([\s\S]*?)<\/div>/i);
-            const rawName = h1Match ? h1Match[1] : (titleMatch ? titleMatch[1].replace(/\s*-\s*OMSA LINE\s*$/i, '') : fileName.replace(/\.html$/i, ''));
-            const rawCompany = companyMatch ? companyMatch[1] : "OMSA LINE";
+            const rawName = h1Match ? h1Match[1] : (titleMatch ? titleMatch[1].replace(/\s*-\s*ModernBiz Digital\s*$/i, '') : fileName.replace(/\.html$/i, ''));
+            const rawCompany = companyMatch ? companyMatch[1] : "ModernBiz Digital";
 
             return {
                 fileName,
@@ -1288,7 +1288,7 @@
                     <div class="contact-icon"><i class="fa-solid fa-phone-flip"></i></div>
                 </a>`;
             contactItems += `
-                <a href="https://www.google.com/maps/dir//Omsa+Otomotiv+Aksesuarlar%C4%B1+A.%C5%9E./" target="_blank" class="contact-item">
+                <a href="https://www.google.com/maps" target="_blank" class="contact-item">
                     <div class="contact-info">
                         <span class="contact-label"><span class="tr">Konum</span><span class="en">Location</span></span>
                         <span class="contact-value"><span class="tr">Yol Tarifi Al</span><span class="en">Get Directions</span></span>
@@ -1347,7 +1347,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>${escapedFullName} - OMSA LINE</title>
+    <title>${escapedFullName} - ModernBiz Digital</title>
     <link rel="stylesheet" href="./css/normalize.min.css">
     <link rel="stylesheet" href="./css/style_v5.css">
     <link href="./fontawesome/css/fontawesome.css" rel="stylesheet">
@@ -1357,7 +1357,7 @@
 <body class="lang-tr">
 <div class="wrapper">
     <div class="top-section">
-        <img src="./img/Omsaline-blue_50.png" alt="Omsaline Logo" class="top-logo">
+        <img src="./img/logo.png" alt="Logo" class="top-logo">
         <img src="./img/${slug}.png" alt="QR Code" class="qr-image">
     </div>
     <main class="profile-content">
